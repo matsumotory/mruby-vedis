@@ -82,49 +82,33 @@ static const struct mrb_data_type vedis_ctx_type = {
     "vedis_ctx", mrb_vedis_ctx_free,
 };
 
-static vedis *mrb_vedis_get_ctx(mrb_state *mrb,  mrb_value self)
-{
-    vedis *ctx;
-    mrb_value ctx_obj;
-
-    ctx_obj = mrb_iv_get(mrb, self, mrb_intern(mrb, "vedis_ctx"));
-    Data_Get_Struct(mrb, ctx_obj, &vedis_ctx_type, ctx);
-    if (!ctx)
-        mrb_raise(mrb, E_RUNTIME_ERROR, "mrb_vedis_get_ctx get from mrb_iv_get vedis_ctx failed");
-
-    return ctx;
-}
-
-mrb_value mrb_vedis_open(mrb_state *mrb, mrb_value self)
+static mrb_value mrb_vedis_open(mrb_state *mrb, mrb_value self)
 {
     int ret, argc;
     vedis *vstore;
     mrb_value db_file;
 
-    argc = mrb_get_args(mrb, "|o", &db_file);
+    vstore = (vedis *)DATA_PTR(self);
+    if (vstore) {
+        mrb_free(mrb, vstore);
+    }
+    DATA_TYPE(self) = &vedis_ctx_type;
+    DATA_PTR(self) = NULL;
 
+    argc = mrb_get_args(mrb, "|o", &db_file);
     ret = vedis_open(&vstore, argc == 0 ? ":mem:" : RSTRING_PTR(db_file));
     if (ret != VEDIS_OK) {
         mrb_vedis_error(mrb, 0, "Out of memory");
     }
-
-    mrb_iv_set(mrb
-        , self
-        , mrb_intern(mrb, "vedis_ctx")
-        , mrb_obj_value(Data_Wrap_Struct(mrb
-            , mrb->object_class
-            , &vedis_ctx_type
-            , (void*) vstore)
-        )
-    );
+    DATA_PTR(self) = vstore;
 
     return self;
 }
 
-mrb_value mrb_vedis_set(mrb_state *mrb, mrb_value self)
+static mrb_value mrb_vedis_set(mrb_state *mrb, mrb_value self)
 {
     int ret;
-    vedis *vstore;
+    vedis *vstore = DATA_PTR(self);
     mrb_value key_obj, val_obj;
     const char *key = NULL;
 
@@ -139,7 +123,6 @@ mrb_value mrb_vedis_set(mrb_state *mrb, mrb_value self)
         default:
             mrb_raise(mrb, E_RUNTIME_ERROR, "vedis key type is string or symbol");
     }
-    vstore = mrb_vedis_get_ctx(mrb, self);
     val_obj = mrb_obj_as_string(mrb, val_obj);
     ret = vedis_kv_store(vstore, key, strlen(key), RSTRING_PTR(val_obj), RSTRING_LEN(val_obj));
     if (ret != VEDIS_OK) {
@@ -152,7 +135,7 @@ mrb_value mrb_vedis_set(mrb_state *mrb, mrb_value self)
 static mrb_value mrb_vedis_get(mrb_state *mrb, mrb_value self)
 {
     int ret;
-    vedis *vstore;
+    vedis *vstore = DATA_PTR(self);
     mrb_value key_obj;
     vedis_value *result;
     const char *key = NULL;
@@ -168,7 +151,6 @@ static mrb_value mrb_vedis_get(mrb_state *mrb, mrb_value self)
         default:
             mrb_raise(mrb, E_RUNTIME_ERROR, "vedis key type is string or symbol");
     }
-    vstore = mrb_vedis_get_ctx(mrb, self);
     ret = vedis_exec_fmt(vstore, "GET %s", key);
     if (ret != VEDIS_OK) {
         return mrb_nil_value();
@@ -186,11 +168,10 @@ static mrb_value mrb_vedis_get(mrb_state *mrb, mrb_value self)
 static mrb_value mrb_vedis_del(mrb_state *mrb, mrb_value self)
 {
     int ret;
-    vedis *vstore;
+    vedis *vstore = DATA_PTR(self);
     mrb_value key; 
 
     mrb_get_args(mrb, "o", &key);
-    vstore = mrb_vedis_get_ctx(mrb, self);
     ret = vedis_kv_delete(vstore, RSTRING_PTR(key), -1);
     if (ret != VEDIS_OK) {
         mrb_vedis_error(mrb, vstore, 0);
@@ -202,9 +183,8 @@ static mrb_value mrb_vedis_del(mrb_state *mrb, mrb_value self)
 static mrb_value mrb_vedis_close(mrb_state *mrb, mrb_value self)
 {
     int ret;
-    vedis *vstore;
+    vedis *vstore = DATA_PTR(self);
 
-    vstore = mrb_vedis_get_ctx(mrb, self);
     ret = vedis_close(vstore);
     if (ret != VEDIS_OK) {
         mrb_vedis_error(mrb, vstore, 0);
