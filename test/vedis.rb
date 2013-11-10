@@ -16,13 +16,13 @@ end
 
 assert("Vedis#set, Vedis#get by sym") do
   v = Vedis.new
-  v.set :hoge, "fuga" 
+  v.set :hoge, "fuga"
   v.get(:hoge) == "fuga"
 end
 
 assert("Vedis#[]=, Vedis#[]") do
   v = Vedis.new
-  v["hoge"] = "fuga" 
+  v["hoge"] = "fuga"
   v["hoge"] == "fuga"
 end
 
@@ -51,3 +51,20 @@ assert("Vedis#exec") do
   r1 == nil and r2 == ["james", "27", "dude@example.com"]
 end
 
+assert("Vedis#append") do
+  v = Vedis.new
+  v["hoge"] = "aaa"
+  assert_equal("aaa bbb", v.append("hoge", " bbb"))
+  assert_equal("aaa bbb", v["hoge"])
+  assert_equal("ccc", v.append("fuga", "ccc"))
+  assert_equal("ccc", v["fuga"])
+end
+
+assert("Vedis#append, by sym") do
+  v = Vedis.new
+  v[:hoge] = "aaa"
+  assert_equal("aaa bbb", v.append(:hoge, " bbb"))
+  assert_equal("aaa bbb", v[:hoge])
+  assert_equal("ccc", v.append(:fuga, "ccc"))
+  assert_equal("ccc", v[:fuga])
+end
