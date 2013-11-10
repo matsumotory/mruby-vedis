@@ -47,6 +47,7 @@
 #include "mruby/data.h"
 #include "mruby/variable.h"
 #include "mruby/array.h"
+#include "mruby/hash.h"
 #include "mruby/string.h"
 #include "mruby/class.h"
 #include "mrb_vedis.h"
@@ -238,6 +239,35 @@ static mrb_value mrb_vedis_append(mrb_state *mrb, mrb_value self)
     return mrb_funcall(mrb, self, "get", 1, key_obj);
 }
 
+static mrb_value mrb_vedis_append_hash(mrb_state *mrb, mrb_value self)
+{
+    int ret;
+    vedis *vstore = DATA_PTR(self);
+    mrb_value hash_obj, key_obj, val_obj;
+    const char *key = NULL;
+
+    mrb_get_args(mrb, "H", &hash_obj);
+    key_obj = mrb_ary_pop(mrb, mrb_hash_keys(mrb, hash_obj));
+    val_obj = mrb_hash_get(mrb, hash_obj, key_obj);
+    switch (mrb_type(key_obj)) {
+        case MRB_TT_STRING:
+            key = RSTRING_PTR(key_obj);
+            break;
+        case MRB_TT_SYMBOL:
+            key = mrb_sym2name(mrb, mrb_obj_to_sym(mrb, key_obj));
+            break;
+        default:
+            mrb_raise(mrb, E_RUNTIME_ERROR, "vedis key type is string or symbol");
+    }
+    val_obj = mrb_obj_as_string(mrb, val_obj);
+    ret = vedis_kv_append(vstore, key, strlen(key), RSTRING_PTR(val_obj), RSTRING_LEN(val_obj));
+    if (ret != VEDIS_OK) {
+        mrb_vedis_error(mrb, vstore, 0);
+    }
+
+    return mrb_funcall(mrb, self, "get", 1, key_obj);
+}
+
 static mrb_value mrb_vedis_close(mrb_state *mrb, mrb_value self)
 {
     int ret;
@@ -265,6 +295,7 @@ void mrb_mruby_vedis_gem_init(mrb_state *mrb)
     mrb_define_method(mrb, vedis, "exec", mrb_vedis_exec, ARGS_REQ(1));
     mrb_define_method(mrb, vedis, "del", mrb_vedis_del, ARGS_REQ(1));
     mrb_define_method(mrb, vedis, "append", mrb_vedis_append, ARGS_REQ(2));
+    mrb_define_method(mrb, vedis, "<<", mrb_vedis_append_hash, ARGS_REQ(1));
     mrb_define_method(mrb, vedis, "close", mrb_vedis_close, ARGS_NONE());
     DONE;
 }

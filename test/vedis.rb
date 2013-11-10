@@ -68,3 +68,12 @@ assert("Vedis#append, by sym") do
   assert_equal("ccc", v.append(:fuga, "ccc"))
   assert_equal("ccc", v[:fuga])
 end
+
+assert("Vedis#<<") do
+  v = Vedis.new
+  v["hoge"] = "aaa"
+  assert_equal("aaa bbb", v << {:hoge => " bbb"})
+  assert_equal("aaa bbb", v["hoge"])
+  assert_equal("ccc", v << {:fuga => "ccc"})
+  assert_equal("ccc", v["fuga"])
+end
