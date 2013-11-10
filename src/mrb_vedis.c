@@ -2,7 +2,7 @@
 ** mrb_vedis - vedis class for mruby using vedis
 **
 ** Copyright (c) mod_mruby developers 2013-
-** 
+**
 ** based on below vedis license.
 */
 /*
@@ -18,7 +18,7 @@
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
  * 3. vedistributions in any form must be accompanied by information on
- *    how to obtain complete source code for the Vedis engine and any 
+ *    how to obtain complete source code for the Vedis engine and any
  *    accompanying software that uses the Vedis engine software.
  *    The source code must either be included in the distribution
  *    or be available for no more than the cost of distribution plus
@@ -54,7 +54,7 @@
 #define DONE mrb_gc_arena_restore(mrb, 0);
 
 static void mrb_vedis_error(mrb_state *mrb, vedis *store, const char *msg)
-{   
+{
     const char *err;
     int elen = 0;
 
@@ -75,7 +75,7 @@ static void mrb_vedis_error(mrb_state *mrb, vedis *store, const char *msg)
 
 static void mrb_vedis_ctx_free(mrb_state *mrb, void *p)
 {
-    vedis_close(p);    
+    vedis_close(p);
 }
 
 static const struct mrb_data_type vedis_ctx_type = {
@@ -192,7 +192,7 @@ static mrb_value mrb_vedis_exec(mrb_state *mrb, mrb_value self)
             }
             return ary;
         }
-    } 
+    }
     return mrb_nil_value();
 }
 
@@ -200,7 +200,7 @@ static mrb_value mrb_vedis_del(mrb_state *mrb, mrb_value self)
 {
     int ret;
     vedis *vstore = DATA_PTR(self);
-    mrb_value key; 
+    mrb_value key;
 
     mrb_get_args(mrb, "o", &key);
     ret = vedis_kv_delete(vstore, RSTRING_PTR(key), -1);
@@ -209,6 +209,33 @@ static mrb_value mrb_vedis_del(mrb_state *mrb, mrb_value self)
     }
 
     return key;
+}
+
+static mrb_value mrb_vedis_append(mrb_state *mrb, mrb_value self)
+{
+    int ret;
+    vedis *vstore = DATA_PTR(self);
+    mrb_value key_obj, val_obj;
+    const char *key = NULL;
+
+    mrb_get_args(mrb, "oo", &key_obj, &val_obj);
+    switch (mrb_type(key_obj)) {
+        case MRB_TT_STRING:
+            key = RSTRING_PTR(key_obj);
+            break;
+        case MRB_TT_SYMBOL:
+            key = mrb_sym2name(mrb, mrb_obj_to_sym(mrb, key_obj));
+            break;
+        default:
+            mrb_raise(mrb, E_RUNTIME_ERROR, "vedis key type is string or symbol");
+    }
+    val_obj = mrb_obj_as_string(mrb, val_obj);
+    ret = vedis_kv_append(vstore, key, strlen(key), RSTRING_PTR(val_obj), RSTRING_LEN(val_obj));
+    if (ret != VEDIS_OK) {
+        mrb_vedis_error(mrb, vstore, 0);
+    }
+
+    return mrb_funcall(mrb, self, "get", 1, key_obj);
 }
 
 static mrb_value mrb_vedis_close(mrb_state *mrb, mrb_value self)
@@ -237,6 +264,7 @@ void mrb_mruby_vedis_gem_init(mrb_state *mrb)
     mrb_define_method(mrb, vedis, "[]", mrb_vedis_get, ARGS_REQ(1));
     mrb_define_method(mrb, vedis, "exec", mrb_vedis_exec, ARGS_REQ(1));
     mrb_define_method(mrb, vedis, "del", mrb_vedis_del, ARGS_REQ(1));
+    mrb_define_method(mrb, vedis, "append", mrb_vedis_append, ARGS_REQ(2));
     mrb_define_method(mrb, vedis, "close", mrb_vedis_close, ARGS_NONE());
     DONE;
 }
