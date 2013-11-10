@@ -44,3 +44,10 @@ assert("Vedis#[] by On-Disk Data Store") do
   v[:hoge] == "fuga"
 end
 
+assert("Vedis#exec") do
+  v = Vedis.new
+  r1 = v.exec "MSET username james age 27 mail dude@example.com"
+  r2 = v.exec "MGET username age mail"
+  r1 == nil and r2 == ["james", "27", "dude@example.com"]
+end
+

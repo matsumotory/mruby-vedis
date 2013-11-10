@@ -165,6 +165,37 @@ static mrb_value mrb_vedis_get(mrb_state *mrb, mrb_value self)
     return mrb_nil_value();
 }
 
+static mrb_value mrb_vedis_exec(mrb_state *mrb, mrb_value self)
+{
+    int ret;
+    vedis *vstore = DATA_PTR(self);
+    vedis_value *result;
+    vedis_value *entry;
+    mrb_value ary;
+    const char *cmd = NULL;
+
+    mrb_get_args(mrb, "z", &cmd);
+    ret = vedis_exec(vstore, cmd, -1);
+    if (ret != VEDIS_OK) {
+        return mrb_nil_value();
+    }
+    ret = vedis_exec_result(vstore, &result);
+    if (ret != VEDIS_OK) {
+        return mrb_nil_value();
+    } else {
+        if (vedis_value_is_string(result)) {
+            return mrb_str_new_cstr(mrb, vedis_value_to_string(result, 0));
+        } else if (vedis_value_is_array(result)) {
+            ary = mrb_ary_new(mrb);
+            while ((entry = vedis_array_next_elem(result)) != 0) {
+                mrb_ary_push(mrb, ary, mrb_str_new_cstr(mrb, vedis_value_to_string(entry, 0)));
+            }
+            return ary;
+        }
+    } 
+    return mrb_nil_value();
+}
+
 static mrb_value mrb_vedis_del(mrb_state *mrb, mrb_value self)
 {
     int ret;
@@ -204,6 +235,7 @@ void mrb_mruby_vedis_gem_init(mrb_state *mrb)
     mrb_define_method(mrb, vedis, "get", mrb_vedis_get, ARGS_REQ(1));
     mrb_define_method(mrb, vedis, "[]=", mrb_vedis_set, ARGS_REQ(2));
     mrb_define_method(mrb, vedis, "[]", mrb_vedis_get, ARGS_REQ(1));
+    mrb_define_method(mrb, vedis, "exec", mrb_vedis_exec, ARGS_REQ(1));
     mrb_define_method(mrb, vedis, "del", mrb_vedis_del, ARGS_REQ(1));
     mrb_define_method(mrb, vedis, "close", mrb_vedis_close, ARGS_NONE());
     DONE;
