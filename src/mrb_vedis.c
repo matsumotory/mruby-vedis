@@ -236,7 +236,7 @@ static mrb_value mrb_vedis_append(mrb_state *mrb, mrb_value self)
         mrb_vedis_error(mrb, vstore, 0);
     }
 
-    return mrb_funcall(mrb, self, "get", 1, key_obj);
+    return mrb_true_value();
 }
 
 static mrb_value mrb_vedis_append_hash(mrb_state *mrb, mrb_value self)
@@ -265,7 +265,7 @@ static mrb_value mrb_vedis_append_hash(mrb_state *mrb, mrb_value self)
         mrb_vedis_error(mrb, vstore, 0);
     }
 
-    return mrb_funcall(mrb, self, "get", 1, key_obj);
+    return mrb_true_value();
 }
 
 static mrb_value mrb_vedis_close(mrb_state *mrb, mrb_value self)

@@ -54,26 +54,26 @@ end
 assert("Vedis#append") do
   v = Vedis.new
   v["hoge"] = "aaa"
-  assert_equal("aaa bbb", v.append("hoge", " bbb"))
+  assert_equal(true, v.append("hoge", " bbb"))
   assert_equal("aaa bbb", v["hoge"])
-  assert_equal("ccc", v.append("fuga", "ccc"))
+  assert_equal(true, v.append("fuga", "ccc"))
   assert_equal("ccc", v["fuga"])
 end
 
 assert("Vedis#append, by sym") do
   v = Vedis.new
   v[:hoge] = "aaa"
-  assert_equal("aaa bbb", v.append(:hoge, " bbb"))
+  assert_equal(true, v.append(:hoge, " bbb"))
   assert_equal("aaa bbb", v[:hoge])
-  assert_equal("ccc", v.append(:fuga, "ccc"))
+  assert_equal(true, v.append(:fuga, "ccc"))
   assert_equal("ccc", v[:fuga])
 end
 
 assert("Vedis#<<") do
   v = Vedis.new
   v["hoge"] = "aaa"
-  assert_equal("aaa bbb", v << {:hoge => " bbb"})
+  assert_equal(true, v << {:hoge => " bbb"})
   assert_equal("aaa bbb", v["hoge"])
-  assert_equal("ccc", v << {:fuga => "ccc"})
+  assert_equal(true, v << {:fuga => "ccc"})
   assert_equal("ccc", v["fuga"])
 end

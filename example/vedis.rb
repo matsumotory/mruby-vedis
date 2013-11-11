@@ -8,6 +8,7 @@ v = Vedis.new
 v["test"] = "bbb"
 v[:hoge] = 2
 v[:foo] = 3
+p v << {:foo => "dayo"}
 v.set :fuga, "aaa"
 
 # exec
