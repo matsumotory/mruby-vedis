@@ -212,59 +212,52 @@ static mrb_value mrb_vedis_del(mrb_state *mrb, mrb_value self)
     return key;
 }
 
+static mrb_value mrb_vedis_append_s(mrb_state *mrb, mrb_value key_obj, mrb_value val_obj, vedis *vstore)
+{
+    int ret;
+    const char *key = NULL;
+
+    switch (mrb_type(key_obj)) {
+        case MRB_TT_STRING:
+            key = RSTRING_PTR(key_obj);
+            break;
+        case MRB_TT_SYMBOL:
+            key = mrb_sym2name(mrb, mrb_obj_to_sym(mrb, key_obj));
+            break;
+        default:
+            mrb_raise(mrb, E_RUNTIME_ERROR, "vedis key type is string or symbol");
+    }
+    val_obj = mrb_obj_as_string(mrb, val_obj);
+    ret = vedis_kv_append(vstore, key, strlen(key), RSTRING_PTR(val_obj), RSTRING_LEN(val_obj));
+    if (ret != VEDIS_OK) {
+        mrb_vedis_error(mrb, vstore, 0);
+    }
+    return mrb_true_value();
+}
+
 static mrb_value mrb_vedis_append(mrb_state *mrb, mrb_value self)
 {
     int ret;
     vedis *vstore = DATA_PTR(self);
     mrb_value key_obj, val_obj;
-    const char *key = NULL;
-
     mrb_get_args(mrb, "oo", &key_obj, &val_obj);
-    switch (mrb_type(key_obj)) {
-        case MRB_TT_STRING:
-            key = RSTRING_PTR(key_obj);
-            break;
-        case MRB_TT_SYMBOL:
-            key = mrb_sym2name(mrb, mrb_obj_to_sym(mrb, key_obj));
-            break;
-        default:
-            mrb_raise(mrb, E_RUNTIME_ERROR, "vedis key type is string or symbol");
-    }
-    val_obj = mrb_obj_as_string(mrb, val_obj);
-    ret = vedis_kv_append(vstore, key, strlen(key), RSTRING_PTR(val_obj), RSTRING_LEN(val_obj));
-    if (ret != VEDIS_OK) {
-        mrb_vedis_error(mrb, vstore, 0);
-    }
-
-    return mrb_true_value();
+    return mrb_vedis_append_s(mrb, key_obj, val_obj, vstore);
 }
 
 static mrb_value mrb_vedis_append_hash(mrb_state *mrb, mrb_value self)
 {
-    int ret;
+    int ai;
     vedis *vstore = DATA_PTR(self);
-    mrb_value hash_obj, key_obj, val_obj;
-    const char *key = NULL;
+    mrb_value hash, keys, key, val;
 
-    mrb_get_args(mrb, "H", &hash_obj);
-    key_obj = mrb_ary_pop(mrb, mrb_hash_keys(mrb, hash_obj));
-    val_obj = mrb_hash_get(mrb, hash_obj, key_obj);
-    switch (mrb_type(key_obj)) {
-        case MRB_TT_STRING:
-            key = RSTRING_PTR(key_obj);
-            break;
-        case MRB_TT_SYMBOL:
-            key = mrb_sym2name(mrb, mrb_obj_to_sym(mrb, key_obj));
-            break;
-        default:
-            mrb_raise(mrb, E_RUNTIME_ERROR, "vedis key type is string or symbol");
+    mrb_get_args(mrb, "H", &hash);
+    keys = mrb_hash_keys(mrb, hash);
+    ai = mrb_gc_arena_save(mrb);
+    while (!mrb_nil_p(key = mrb_ary_pop(mrb, keys))) {
+        val = mrb_hash_get(mrb, hash, key);
+        mrb_vedis_append_s(mrb, key, val, vstore);
+        mrb_gc_arena_restore(mrb, ai);
     }
-    val_obj = mrb_obj_as_string(mrb, val_obj);
-    ret = vedis_kv_append(vstore, key, strlen(key), RSTRING_PTR(val_obj), RSTRING_LEN(val_obj));
-    if (ret != VEDIS_OK) {
-        mrb_vedis_error(mrb, vstore, 0);
-    }
-
     return mrb_true_value();
 }
 

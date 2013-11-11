@@ -72,8 +72,7 @@ end
 assert("Vedis#<<") do
   v = Vedis.new
   v["hoge"] = "aaa"
-  assert_equal(true, v << {:hoge => " bbb"})
+  assert_equal(true, v << {:fuga => "ccc", :hoge => " bbb"})
   assert_equal("aaa bbb", v["hoge"])
-  assert_equal(true, v << {:fuga => "ccc"})
   assert_equal("ccc", v["fuga"])
 end
