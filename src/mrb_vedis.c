@@ -261,6 +261,39 @@ static mrb_value mrb_vedis_append_hash(mrb_state *mrb, mrb_value self)
     return mrb_true_value();
 }
 
+static mrb_value mrb_vedis_exists(mrb_state *mrb, mrb_value self)
+{
+    int ret;
+    vedis *vstore = DATA_PTR(self);
+    mrb_value key_obj;
+    vedis_value *result;
+    const char *key = NULL;
+
+    mrb_get_args(mrb, "o", &key_obj);
+    switch (mrb_type(key_obj)) {
+        case MRB_TT_STRING:
+            key = RSTRING_PTR(key_obj);
+            break;
+        case MRB_TT_SYMBOL:
+            key = mrb_sym2name(mrb, mrb_obj_to_sym(mrb, key_obj));
+            break;
+        default:
+            mrb_raise(mrb, E_RUNTIME_ERROR, "vedis key type is string or symbol");
+    }
+    ret = vedis_exec_fmt(vstore, "EXISTS %s", key);
+    if (ret != VEDIS_OK) {
+        mrb_vedis_error(mrb, vstore, 0);
+    }
+    ret = vedis_exec_result(vstore, &result);
+    if (ret != VEDIS_OK) {
+        mrb_vedis_error(mrb, vstore, 0);
+    }
+    if (vedis_value_to_bool(result)) {
+        return mrb_true_value();
+    }
+    return mrb_false_value();
+}
+
 static mrb_value mrb_vedis_close(mrb_state *mrb, mrb_value self)
 {
     int ret;
@@ -289,6 +322,7 @@ void mrb_mruby_vedis_gem_init(mrb_state *mrb)
     mrb_define_method(mrb, vedis, "del", mrb_vedis_del, ARGS_REQ(1));
     mrb_define_method(mrb, vedis, "append", mrb_vedis_append, ARGS_REQ(2));
     mrb_define_method(mrb, vedis, "<<", mrb_vedis_append_hash, ARGS_REQ(1));
+    mrb_define_method(mrb, vedis, "exists?", mrb_vedis_exists, ARGS_REQ(1));
     mrb_define_method(mrb, vedis, "close", mrb_vedis_close, ARGS_NONE());
     DONE;
 }

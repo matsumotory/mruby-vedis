@@ -76,3 +76,17 @@ assert("Vedis#<<") do
   assert_equal("aaa bbb", v["hoge"])
   assert_equal("ccc", v["fuga"])
 end
+
+assert("Vedis#exist?") do
+  v = Vedis.new
+  v["hoge"] = "aaa"
+  assert_true(v.exists?("hoge"))
+  assert_false(v.exists?("fuga"))
+end
+
+assert("Vedis#exist?, by sym") do
+  v = Vedis.new
+  v[:hoge] = "aaa"
+  assert_true(v.exists?(:hoge))
+  assert_false(v.exists?(:fuga))
+end
