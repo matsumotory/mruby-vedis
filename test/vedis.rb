@@ -90,3 +90,17 @@ assert("Vedis#exist?, by sym") do
   assert_true(v.exists?(:hoge))
   assert_false(v.exists?(:fuga))
 end
+
+assert("Vedis#strlen") do
+  v = Vedis.new
+  v["hoge"] = "aaa"
+  assert_equal(3, v.strlen("hoge"))
+  assert_equal(0, v.strlen("fuga"))
+end
+
+assert("Vedis#strlen, by sym") do
+  v = Vedis.new
+  v[:hoge] = "aaa"
+  assert_equal(3, v.strlen(:hoge))
+  assert_equal(0, v.strlen(:fuga))
+end
