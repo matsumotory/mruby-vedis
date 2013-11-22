@@ -13,7 +13,7 @@ MRuby::Build.new do |conf|
 
   # include the default GEMs
   conf.gembox 'default'
-  conf.gem :github => 'matsumoto-r/mruby-vedis', :branch => 'master'
+  conf.gem '../mruby-vedis'
   
 
   # C compiler settings
