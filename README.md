@@ -38,6 +38,58 @@ p v.get :fuga   #=> "aaa"
 p r1            #=> nil
 p r2            #=> ["james", "27", "dude@example.com"]
 ```
+## simple benchmark Vedis compared with Redis
+- benchmark code
+
+```ruby
+class SimpleBenchmark
+
+  def initialize(width = 0)
+    @width = width
+  end
+
+  def measure(label)
+    start = Time.now
+    yield if block_given?
+    passed = Time.now - start
+
+    puts "#{make_fixed_label(label)}passed time #{passed} sec"
+  end
+
+  def make_fixed_label(label)
+   if @width - label.length > 0
+      label + ' ' * (@width - label.length)
+    else
+      label
+    end
+  end
+
+end
+
+benchmark = SimpleBenchmark.new
+r = Redis.new "127.0.0.1", 6379
+v = Vedis.new
+n = 100000
+
+[r, v].each do |kvs|
+  benchmark.measure("#{kvs.class}: ") do
+    n.times do |t|
+      kvs.set t.to_s, t.to_s
+    end
+  end
+end
+
+r.close
+v.close
+```
+
+- result
+
+```bash
+$ mruby test_vedis_redis.rb 
+Redis: passed time 10.785598 sec
+Vedis: passed time 0.06595 sec
+```
 
 ## License
 under the Sleepycat License:
