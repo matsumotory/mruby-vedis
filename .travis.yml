@@ -22,4 +22,5 @@ notifications:
     skip_join: true
     template:
         - "[%{message}] %{repository} (%{commit}) by %{author}: See %{build_url}"
-
+  webhooks:
+    - secure: "kSMxuWQoz7Z5uXUzJwHlATzuWpFBLLfN65LbjLBcTTPQEQ7iRCPlXV+/WkUsz+6kmzKFVNFjmL8lZ/1oC5X3Xs4g/OgmlwiBqkPmGUer0iGsSFfkFb3kSH1XAfmVbzHuSg47H+9sxCaPEIL2h4fBmG0AayXoNjPyTsCgty62gmY="
