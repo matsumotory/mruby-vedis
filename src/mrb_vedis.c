@@ -216,19 +216,22 @@ static mrb_value mrb_vedis_append_s(mrb_state *mrb, mrb_value key_obj, mrb_value
 {
     int ret;
     const char *key = NULL;
+    size_t key_len;
 
     switch (mrb_type(key_obj)) {
         case MRB_TT_STRING:
             key = RSTRING_PTR(key_obj);
+            key_len = RSTRING_LEN(key_obj);
             break;
         case MRB_TT_SYMBOL:
             key = mrb_sym2name(mrb, mrb_obj_to_sym(mrb, key_obj));
+            key_len = strlen(key);
             break;
         default:
             mrb_raise(mrb, E_RUNTIME_ERROR, "vedis key type is string or symbol");
     }
     val_obj = mrb_obj_as_string(mrb, val_obj);
-    ret = vedis_kv_append(vstore, key, strlen(key), RSTRING_PTR(val_obj), RSTRING_LEN(val_obj));
+    ret = vedis_kv_append(vstore, key, key_len, RSTRING_PTR(val_obj), RSTRING_LEN(val_obj));
     if (ret != VEDIS_OK) {
         mrb_vedis_error(mrb, vstore, 0);
     }
