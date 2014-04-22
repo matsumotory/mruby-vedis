@@ -253,6 +253,7 @@ static mrb_value mrb_vedis_append_hash(mrb_state *mrb, mrb_value self)
     mrb_value hash, keys, key, val;
 
     mrb_get_args(mrb, "H", &hash);
+    mrb_gc_protect(mrb, hash);
     keys = mrb_hash_keys(mrb, hash);
     ai = mrb_gc_arena_save(mrb);
     while (!mrb_nil_p(key = mrb_ary_pop(mrb, keys))) {
