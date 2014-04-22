@@ -240,7 +240,6 @@ static mrb_value mrb_vedis_append_s(mrb_state *mrb, mrb_value key_obj, mrb_value
 
 static mrb_value mrb_vedis_append(mrb_state *mrb, mrb_value self)
 {
-    int ret;
     vedis *vstore = DATA_PTR(self);
     mrb_value key_obj, val_obj;
     mrb_get_args(mrb, "oo", &key_obj, &val_obj);
