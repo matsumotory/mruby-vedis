@@ -144,7 +144,7 @@ static mrb_value mrb_vedis_get(mrb_state *mrb, mrb_value self)
     mrb_get_args(mrb, "o", &key_obj);
     switch (mrb_type(key_obj)) {
         case MRB_TT_STRING:
-            key = RSTRING_PTR(key_obj);
+            key = mrb_str_to_cstr(mrb, key_obj);
             break;
         case MRB_TT_SYMBOL:
             key = mrb_sym2name(mrb, mrb_obj_to_sym(mrb, key_obj));
