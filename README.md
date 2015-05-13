@@ -1,9 +1,15 @@
 # mruby-vedis   [![Build Status](https://travis-ci.org/matsumoto-r/mruby-vedis.png?branch=master)](https://travis-ci.org/matsumoto-r/mruby-vedis)
-vedis binding by mruby.
-vedis is an embeddable datastore C library built with over 70 commands similar in concept to Redis but without the networking layer since Vedis run in the same process of the host application.
-Please see [vedis pages](http://vedis.symisc.net/index.html).
-## install by mrbgems 
-- add conf.gem line to `build_config.rb` 
+Binding vedis for mruby.
+
+Vedis is a embeddable datastore and self-contained C library that supports over 70 commands similar to Redis.
+
+The major difference from Redis is no networking layer since Vedis runs in the same process of the host application.
+
+Please see the official [Vedis homepage](http://vedis.symisc.net/index.html) for more detail.
+
+## Install by mrbgems
+
+Add the following line to `build_config.rb`:
 
 ```ruby
 MRuby::Build.new do |conf|
@@ -13,7 +19,9 @@ MRuby::Build.new do |conf|
     conf.gem :github => 'matsumoto-r/mruby-vedis'
 end
 ```
-## example 
+
+## Usage
+
 ```ruby
 # In-Memory
 v = Vedis.new
@@ -38,8 +46,10 @@ p v.get :fuga   #=> "aaa"
 p r1            #=> nil
 p r2            #=> ["james", "27", "dude@example.com"]
 ```
-## simple benchmark Vedis compared with Redis
-- benchmark code
+
+## Benchmark comparing Vedis with Redis
+
+### Simple benchmark
 
 ```ruby
 class SimpleBenchmark
@@ -83,14 +93,14 @@ r.close
 v.close
 ```
 
-- result
+### Results
 
 ```bash
-$ mruby test_vedis_redis.rb 
+$ mruby test_vedis_redis.rb
 Redis: passed time 10.785598 sec
 Vedis: passed time 0.06595 sec
 ```
 
 ## License
-under the Sleepycat License:
-- see LICENSE file
+
+mruby-vedis is licensed under the Sleepycat License, see the LICENSE file.
