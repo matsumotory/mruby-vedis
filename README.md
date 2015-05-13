@@ -10,7 +10,7 @@ MRuby::Build.new do |conf|
 
     # ... (snip) ...
 
-    conf.gem :git => 'https://github.com/matsumoto-r/mruby-vedis.git'
+    conf.gem :github => 'matsumoto-r/mruby-vedis'
 end
 ```
 ## example 
