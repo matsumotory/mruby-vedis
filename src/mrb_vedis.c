@@ -342,6 +342,19 @@ static mrb_value mrb_vedis_close(mrb_state *mrb, mrb_value self)
     return self;
 }
 
+static mrb_value mrb_vedis_commit(mrb_state *mrb, mrb_value self)
+{
+    int ret;
+    vedis *vstore = DATA_PTR(self);
+
+    ret = vedis_commit(vstore);
+    if (ret != VEDIS_OK) {
+        mrb_vedis_error(mrb, vstore, 0);
+    }
+
+    return mrb_true_value();
+}
+
 void mrb_mruby_vedis_gem_init(mrb_state *mrb)
 {
     struct RClass *vedis;
@@ -360,6 +373,7 @@ void mrb_mruby_vedis_gem_init(mrb_state *mrb)
     mrb_define_method(mrb, vedis, "exists?", mrb_vedis_exists, ARGS_REQ(1));
     mrb_define_method(mrb, vedis, "strlen", mrb_vedis_strlen, ARGS_REQ(1));
     mrb_define_method(mrb, vedis, "close", mrb_vedis_close, ARGS_NONE());
+    mrb_define_method(mrb, vedis, "commit", mrb_vedis_commit, ARGS_NONE());
     DONE;
 }
 
