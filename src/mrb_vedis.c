@@ -361,19 +361,19 @@ void mrb_mruby_vedis_gem_init(mrb_state *mrb)
 
     vedis = mrb_define_class(mrb, "Vedis", mrb->object_class);
 
-    mrb_define_method(mrb, vedis, "initialize", mrb_vedis_open, ARGS_OPT(1));
-    mrb_define_method(mrb, vedis, "set", mrb_vedis_set, ARGS_REQ(2));
-    mrb_define_method(mrb, vedis, "get", mrb_vedis_get, ARGS_REQ(1));
-    mrb_define_method(mrb, vedis, "[]=", mrb_vedis_set, ARGS_REQ(2));
-    mrb_define_method(mrb, vedis, "[]", mrb_vedis_get, ARGS_REQ(1));
-    mrb_define_method(mrb, vedis, "exec", mrb_vedis_exec, ARGS_REQ(1));
-    mrb_define_method(mrb, vedis, "del", mrb_vedis_del, ARGS_REQ(1));
-    mrb_define_method(mrb, vedis, "append", mrb_vedis_append, ARGS_REQ(2));
-    mrb_define_method(mrb, vedis, "<<", mrb_vedis_append_hash, ARGS_REQ(1));
-    mrb_define_method(mrb, vedis, "exists?", mrb_vedis_exists, ARGS_REQ(1));
-    mrb_define_method(mrb, vedis, "strlen", mrb_vedis_strlen, ARGS_REQ(1));
-    mrb_define_method(mrb, vedis, "close", mrb_vedis_close, ARGS_NONE());
-    mrb_define_method(mrb, vedis, "commit", mrb_vedis_commit, ARGS_NONE());
+    mrb_define_method(mrb, vedis, "initialize", mrb_vedis_open, MRB_ARGS_OPT(1));
+    mrb_define_method(mrb, vedis, "set", mrb_vedis_set, MRB_ARGS_REQ(2));
+    mrb_define_method(mrb, vedis, "get", mrb_vedis_get, MRB_ARGS_REQ(1));
+    mrb_define_method(mrb, vedis, "[]=", mrb_vedis_set, MRB_ARGS_REQ(2));
+    mrb_define_method(mrb, vedis, "[]", mrb_vedis_get, MRB_ARGS_REQ(1));
+    mrb_define_method(mrb, vedis, "exec", mrb_vedis_exec, MRB_ARGS_REQ(1));
+    mrb_define_method(mrb, vedis, "del", mrb_vedis_del, MRB_ARGS_REQ(1));
+    mrb_define_method(mrb, vedis, "append", mrb_vedis_append, MRB_ARGS_REQ(2));
+    mrb_define_method(mrb, vedis, "<<", mrb_vedis_append_hash, MRB_ARGS_REQ(1));
+    mrb_define_method(mrb, vedis, "exists?", mrb_vedis_exists, MRB_ARGS_REQ(1));
+    mrb_define_method(mrb, vedis, "strlen", mrb_vedis_strlen, MRB_ARGS_REQ(1));
+    mrb_define_method(mrb, vedis, "close", mrb_vedis_close, MRB_ARGS_NONE());
+    mrb_define_method(mrb, vedis, "commit", mrb_vedis_commit, MRB_ARGS_NONE());
     DONE;
 }
 
