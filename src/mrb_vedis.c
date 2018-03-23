@@ -76,6 +76,7 @@ static void mrb_vedis_error(mrb_state *mrb, vedis *store, const char *msg)
 
 static void mrb_vedis_ctx_free(mrb_state *mrb, void *p)
 {
+    if (!p) { return; }
     vedis_close(p);
 }
 
@@ -334,10 +335,14 @@ static mrb_value mrb_vedis_close(mrb_state *mrb, mrb_value self)
     int ret;
     vedis *vstore = DATA_PTR(self);
 
+    if (!vstore) { return self; }
+
     ret = vedis_close(vstore);
     if (ret != VEDIS_OK) {
         mrb_vedis_error(mrb, vstore, 0);
     }
+
+    DATA_PTR(self) = NULL;
 
     return self;
 }
