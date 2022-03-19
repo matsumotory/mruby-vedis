@@ -21,7 +21,7 @@ MRuby::Gem::Specification.new('mruby-vedis') do |spec|
   if ! File.exists? vedis_dir
     Dir.chdir(build_dir) do
       e = {}
-      run_command e, 'git clone git://github.com/symisc/vedis.git'
+      run_command e, 'git clone https://github.com/symisc/vedis.git'
     end
   end
 
