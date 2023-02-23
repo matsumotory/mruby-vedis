@@ -18,7 +18,7 @@ MRuby::Gem::Specification.new('mruby-vedis') do |spec|
 
   FileUtils.mkdir_p build_dir
 
-  if ! File.exists? vedis_dir
+  if ! File.exist? vedis_dir
     Dir.chdir(build_dir) do
       e = {}
       run_command e, 'git clone https://github.com/symisc/vedis.git'
